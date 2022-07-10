@@ -1,5 +1,4 @@
 # Standard library imports
-import http.client
 import json
 import os
 import time
@@ -7,9 +6,10 @@ import ssl
 from os.path import abspath, dirname, join
 
 # Third party imports
-from slack import WebClient
 from src.collection import Collection
-from slack.errors import SlackApiError
+
+from src.postman_client import PostmanClient
+from src.slack_client import SlackClient
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -40,14 +40,17 @@ APIs schemas
         slack_channel,
         slack_token,
     ):
-        self.api_key = api_key
-        self.collection_name = collection_name
+        # self.api_key = api_key
+        # self.collection_name = collection_name
         self.trigger_interval = trigger_interval
-        self.slack_channel = slack_channel
-        self.slack_token = slack_token
-        self.collection_id = 0
+        # self.slack_channel = slack_channel
+        # self.slack_token = slack_token
+        # self.collection_id = 0
         self.data_folder_path = join(dirname(abspath(__file__)), "data")
+        self.postman_client = PostmanClient(api_key, collection_name)
+        self.slack_client = SlackClient(slack_channel, slack_token)
 
+    '''
     def get_collection_schema(self):
         """
         Fetches the APIs schemas from the Postman collection
@@ -86,7 +89,8 @@ APIs schemas
         # fetch the response and load the API schema as a JSON
         collection_schema_response = connection.getresponse()
         return json.loads(collection_schema_response.read())
-
+    '''
+    '''
     def post_data_to_slack(self, data):
         """
         Posts the messages for APIs added, deleted and updated based on the \
@@ -123,6 +127,7 @@ updated
             return e
 
         return response_true_cnt
+    '''
 
     def get_newly_added_message(self, end_point_list):
         """
@@ -139,7 +144,7 @@ collection
         for i, end_point in enumerate(end_point_list):
             output = (
                 output
-                + "\t"
+                + "\t("
                 + str(i + 1)
                 + ")  "
                 + "EndPoint Name: "
@@ -173,7 +178,7 @@ collection
         for i, end_point in enumerate(end_point_list):
             output = (
                 output
-                + "\t"
+                + "\t("
                 + str(i + 1)
                 + ")  "
                 + "EndPoint Name: "
@@ -202,16 +207,18 @@ collection
             common_end_points : list of endpoints (APIs) which are modified \
 in the collection
         """
-        title = "Following is the list of change in the existing end points ::\n\n"  # noqa: E501
+        title = "Following is the list of changes in the existing end points ::\n\n"  # noqa: E501
         difference = ""
-        for end_point_tuple in common_end_points:
-            difference = ""
+        i = 0
+        for _, end_point_tuple in enumerate(common_end_points):
+
+            s = ""
             new_end_point = end_point_tuple[0]
             old_end_point = end_point_tuple[1]
 
             # compute change in name
             if new_end_point.name != old_end_point.name:
-                difference += (
+                s += (
                     "\tNew name: "
                     + new_end_point.name
                     + " "
@@ -221,7 +228,7 @@ in the collection
                 )
 
             if new_end_point.url != old_end_point.url:
-                difference += (
+                s += (
                     "\tNew URL: "
                     + new_end_point.url
                     + " "
@@ -233,9 +240,9 @@ in the collection
             # compute change in authentication
             if new_end_point.authentication != old_end_point.authentication:
                 if new_end_point.authentication is None:
-                    difference += "\tNew Authentication: None"
+                    s += "\tNew Authentication: None"
                 else:
-                    difference += (
+                    s += (
                         "\tNew Authentication: Key :"
                         + new_end_point.authentication["apikey"][1]["value"]
                         + ", Value : "
@@ -245,7 +252,7 @@ in the collection
 
             # Compute change in the HTTP request type
             if new_end_point.method != old_end_point.method:
-                difference += (
+                s += (
                     "\t New HTTP method: "
                     + new_end_point.method
                     + " "
@@ -253,6 +260,10 @@ in the collection
                     + old_end_point.method
                     + "\n"
                 )
+
+            if s != "":
+                difference += "\t(" + str(i + 1) + ") " + s
+                i += 1
 
         if difference == "":
             return None
@@ -273,7 +284,9 @@ schema fetched through the Postman API
 
         # specify the filepath for the collection schema, create the file if \
         # not already present
-        filepath = join(self.data_folder_path, self.collection_id + ".txt")
+        filepath = join(
+            self.data_folder_path, self.postman_client.get_collection_id() + ".txt"
+        )
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         if not os.path.exists(filepath):
             with open(filepath, "w") as file:
@@ -282,7 +295,6 @@ schema fetched through the Postman API
         # the old (previous) collection schema is stored as a file in data/
         file = open(filepath, "r")
         old_collection_schema = json.load(file)
-
         # read the data from file and convert it to collection object
         old_schema_obj = Collection(old_collection_schema)
         new_collection_obj = Collection(
@@ -347,7 +359,9 @@ schema fetched through the Postman API
         ----------
             new_collection : collection schema to be saved in the file
         """
-        filepath = join(self.data_folder_path, self.collection_id + ".txt")
+        filepath = join(
+            self.data_folder_path, self.postman_client.get_collection_id() + ".txt"
+        )
         with open(filepath, "w") as file:
             file.write(json.dumps(new_collection.get("collection")))
 
@@ -361,17 +375,13 @@ schema fetched through the Postman API
         file.
         """
         while True:
-
             # get the current configuration of the schema
-            new_collection_schema = self.get_collection_schema()
-
+            new_collection_schema = self.postman_client.get_collection_schema()
             # compute the difference with the previous schema
             difference = self.compute_difference(new_collection_schema)
-
             # post the difference to the slack
-            self.post_data_to_slack(difference)
-
+            self.slack_client.post_data_to_slack(difference)
             # store new schema to the file
             self.store_file(new_collection_schema)
-
+            # break
             time.sleep(self.trigger_interval)

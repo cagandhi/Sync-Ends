@@ -34,14 +34,12 @@ class TestParser(unittest.TestCase):
     @patch(
         "argparse.ArgumentParser.parse_args",
         return_value=argparse.Namespace(
-            config_file="somefile.json",
+            config="somefile.json",
         ),
     )
     def test_get_args(self, mock_args):
 
-        with patch(
-            "builtins.open", mock_open(read_data=json.dumps(self.good_config))
-        ):
+        with patch("builtins.open", mock_open(read_data=json.dumps(self.good_config))):
             (
                 collection_name,
                 postman_api_key,
@@ -58,12 +56,10 @@ class TestParser(unittest.TestCase):
     @patch(
         "argparse.ArgumentParser.parse_args",
         return_value=argparse.Namespace(
-            config_file="somefile.json",
+            config="somefile.json",
         ),
     )
-    def test_get_args_throws_exception_when_missing_postmanapikey(
-        self, mock_args
-    ):
+    def test_get_args_throws_exception_when_missing_postmanapikey(self, mock_args):
         bad_config = deepcopy(self.good_config)
         bad_config.pop("postman_api_key", None)
         bad_config = json.dumps(bad_config)
@@ -81,12 +77,10 @@ class TestParser(unittest.TestCase):
     @patch(
         "argparse.ArgumentParser.parse_args",
         return_value=argparse.Namespace(
-            config_file="somefile.json",
+            config="somefile.json",
         ),
     )
-    def test_get_args_throws_exception_when_missing_slacktoken(
-        self, mock_args
-    ):
+    def test_get_args_throws_exception_when_missing_slacktoken(self, mock_args):
         bad_config = deepcopy(self.good_config)
         bad_config.pop("slack_token", None)
         bad_config = json.dumps(bad_config)
@@ -104,12 +98,10 @@ class TestParser(unittest.TestCase):
     @patch(
         "argparse.ArgumentParser.parse_args",
         return_value=argparse.Namespace(
-            config_file="somefile.json",
+            config="somefile.json",
         ),
     )
-    def test_get_args_throws_exception_when_missing_collections(
-        self, mock_args
-    ):
+    def test_get_args_throws_exception_when_missing_collections(self, mock_args):
         bad_config = deepcopy(self.good_config)
         bad_config.pop("collections", None)
         bad_config = json.dumps(bad_config)
@@ -127,12 +119,10 @@ class TestParser(unittest.TestCase):
     @patch(
         "argparse.ArgumentParser.parse_args",
         return_value=argparse.Namespace(
-            config_file="somefile.json",
+            config="somefile.json",
         ),
     )
-    def test_get_args_throws_exception_when_missing_collections_len0(
-        self, mock_args
-    ):
+    def test_get_args_throws_exception_when_missing_collections_len0(self, mock_args):
         bad_config = deepcopy(self.good_config)
         bad_config["collections"] = []
         bad_config = json.dumps(bad_config)
@@ -150,12 +140,10 @@ class TestParser(unittest.TestCase):
     @patch(
         "argparse.ArgumentParser.parse_args",
         return_value=argparse.Namespace(
-            config_file="somefile.json",
+            config="somefile.json",
         ),
     )
-    def test_get_args_throws_exception_when_missing_collection_name(
-        self, mock_args
-    ):
+    def test_get_args_throws_exception_when_missing_collection_name(self, mock_args):
         bad_config = deepcopy(self.good_config)
         bad_config["collections"][0].pop("collection_name", None)
         bad_config = json.dumps(bad_config)

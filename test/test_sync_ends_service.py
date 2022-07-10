@@ -38,11 +38,9 @@ class TestSyncEndsService(unittest.TestCase):
 
     def test_get_newly_added_message(self):
 
-        title = (
-            "Following end points are newly added in the collection :: \n\n"
-        )
+        title = "Following end points are newly added in the collection :: \n\n"
         output = (
-            "\t"
+            "\t("
             + str(1)
             + ")  "
             + "EndPoint Name: Endpoint 1"
@@ -55,7 +53,7 @@ class TestSyncEndsService(unittest.TestCase):
             + "Request Method: "
             + "POST"
             + "\n\n"
-            + "\t"
+            + "\t("
             + str(2)
             + ")  "
             + "EndPoint Name: Endpoint 2"
@@ -76,7 +74,7 @@ class TestSyncEndsService(unittest.TestCase):
 
         title = "Following end points are deleted from the collection :: \n\n"
         output = (
-            "\t"
+            "\t("
             + str(1)
             + ")  "
             + "EndPoint Name: Endpoint 1"
@@ -89,7 +87,7 @@ class TestSyncEndsService(unittest.TestCase):
             + "Request Method: "
             + "POST"
             + "\n\n"
-            + "\t"
+            + "\t("
             + str(2)
             + ")  "
             + "EndPoint Name: Endpoint 2"
@@ -106,58 +104,50 @@ class TestSyncEndsService(unittest.TestCase):
         result = self.sync_end.get_delete_message(self.end_point_list)
         self.assertEqual(result, title + output)
 
-    def test_post_data_to_slack(self):
-        with patch("slack.WebClient.chat_postMessage") as mock_slack:
-            mock_slack.return_value = True
-
-            data = ["New", "Delete", "Update"]
-            response = self.sync_end.post_data_to_slack(data)
-
-            self.assertEqual(response, 3)
-
     def test_get_updated_end_point_message(self):
-        title = "Following is the list of change in the existing end points ::\n\n"  # noqa: E501
+        title = "Following is the list of changes in the existing end points ::\n\n"  # noqa: E501
         difference = (
-                    "\tNew name: "  # noqa: E126
-                    + "Endpoint 1"
-                    + " "
-                    + "\nOld name: "
-                    + "Endpoint 2"
-                    + "\n"
-                    + "\tNew URL: "
-                    + "http://127.0.0.1:5002/endpoint?ep_id=1"
-                    + " "
-                    + "\nOld URL: "
-                    + "http://127.0.0.1:5003/endpoint?ep_id=2"
-                    + "\n"
-                    + "\t New HTTP method: "
-                    + "POST"
-                    + " "
-                    + "\nOld HTTP method: "
-                    + "GET"
-                    + "\n"
+            "\t(1) \tNew name: "  # noqa: E126
+            + "Endpoint 1"
+            + " "
+            + "\nOld name: "
+            + "Endpoint 2"
+            + "\n"
+            + "\tNew URL: "
+            + "http://127.0.0.1:5002/endpoint?ep_id=1"
+            + " "
+            + "\nOld URL: "
+            + "http://127.0.0.1:5003/endpoint?ep_id=2"
+            + "\n"
+            + "\t New HTTP method: "
+            + "POST"
+            + " "
+            + "\nOld HTTP method: "
+            + "GET"
+            + "\n"
         )
 
-        result = self.sync_end.get_updated_end_point_message(self.common_end_point)  # noqa: E501
+        result = self.sync_end.get_updated_end_point_message(
+            self.common_end_point
+        )  # noqa: E501
         self.assertEqual(result, title + difference)
 
     def test_store_file(self):
-        collection_schema = {
-            "collection": {"info": {"_postman_id": "0000f-0f"}}
-        }
+        collection_schema = {"collection": {"info": {"_postman_id": "0000f-0f"}}}
 
-        self.sync_end.collection_id = "custom_id"
+        with patch("src.postman_client.PostmanClient.get_collection_id") as m:
+            m.return_value = "custom_id"
 
-        with patch("src.sync_ends_service.open", mock_open()) as mocked_file:
-            self.sync_end.store_file(collection_schema)
+            with patch("src.sync_ends_service.open", mock_open()) as mocked_file:
+                self.sync_end.store_file(collection_schema)
 
-            file_path = (
-                dirname(dirname(abspath(__file__))) + "/src/data/custom_id.txt"
-            )
-            mocked_file.assert_called_once_with(file_path, "w")
-            mocked_file().write.assert_called_once_with(
-                str(collection_schema["collection"]).replace("'", '"')
-            )
+                file_path = (
+                    dirname(dirname(abspath(__file__))) + "/src/data/custom_id.txt"
+                )
+                mocked_file.assert_called_once_with(file_path, "w")
+                mocked_file().write.assert_called_once_with(
+                    str(collection_schema["collection"]).replace("'", '"')
+                )
 
 
 if __name__ == "__main__":

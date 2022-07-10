@@ -27,7 +27,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     keywords=["python"],
     url="https://github.com/jaymodi98/csc510-project",
-    download_url='https://github.com/jaymodi98/Sync-Ends/archive/v2.1.3.tar.gz',  # noqa: E501
+    download_url="https://github.com/jaymodi98/Sync-Ends/archive/v2.1.3.tar.gz",  # noqa: E501
     entry_points="""
     [console_scripts]
     syncends = src.main:main

@@ -1,5 +1,6 @@
 import sys
 from os.path import abspath, dirname
+import traceback
 
 sys.path.append(dirname(dirname(abspath(__file__))))
 
@@ -33,7 +34,9 @@ def main():
     try:
         sync_end.start()
     except Exception as e:
-        print(e)
+        print("Printing exception now ---")
+        traceback.print_exc()
+        # print(e)
 
 
 if __name__ == "__main__":

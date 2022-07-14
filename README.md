@@ -2,8 +2,8 @@
 
 
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) ![GitHub](https://img.shields.io/badge/language-python-blue.svg) [![Build Status](https://travis-ci.com/jaymodi98/Sync-Ends.svg?branch=master)](https://travis-ci.com/jaymodi98/Sync-Ends)
-![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/jaymodi98/Sync-Ends) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/jaymodi98/Sync-Ends) ![codecov](https://codecov.io/gh/jaymodi98/Sync-Ends/branch/master/graph/badge.svg?token=DP2AWTXOXL)
-![YouTube Video Views](https://img.shields.io/youtube/views/1Pd3Enj13m8?style=social)
+<br>![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/jaymodi98/Sync-Ends) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/jaymodi98/Sync-Ends) ![codecov](https://codecov.io/gh/jaymodi98/Sync-Ends/branch/master/graph/badge.svg?token=DP2AWTXOXL)
+<br>![YouTube Video Views](https://img.shields.io/youtube/views/1Pd3Enj13m8?style=social)
 
 ## Table of Contents
 - [Overview](#overview)
@@ -26,6 +26,9 @@ Sync-Ends is a productivity service, an automated bridge to sync service owners 
 With more and more teams working autonomously and focusing on a microservice and API-driven culture, it is a hassle, for the API developers to keep notifying their consumers of API changes, and for the API consumers to keep track of these API changes and make required changes in their codebase.
 
 Sync-Ends service addresses this problem by taking the hassle away from the API developers and consumers. The Sync-Ends service continuously monitors the API collection in Postman (being worked on by API developers) and every time an API changes in this collection, it notifies a slack channel (followed by the API consumers) with a diff of the change. This way, API developers don't need to manually post messages every time something changes in the service and API consumers are sure that they are utilising the latest API changes.
+
+Take a look at this short video to understand the project idea better.
+[![Watch the video](images/screenshotpromo.png)](https://www.youtube.com/watch?v=1Pd3Enj13m8)
 
 ## Features
 |Feature|Description  |

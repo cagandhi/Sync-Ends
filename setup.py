@@ -18,7 +18,7 @@ def get_long_description(filename):
 
 
 setuptools.setup(
-    name="sync-ends",
+    name="sync-ends-service",
     version="v2.1.4",
     author="Chintan Gandhi, Jay Modi, Suraj Patel, Omkar Kulkarni, Nirav Shah",
     author_email="cagandhi97@gmail.com",
